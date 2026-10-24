@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APEX FITNESS - A Sua Melhor Versão</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            400: '#facc15',
+                            500: '#eab308', // Amarelo Dourado Vibrante
+                            600: '#ca8a04',
+                            dark: '#0a0a0c',
+                            card: '#121217',
+                            border: '#27272a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0c;
+            color: #f3f4f6;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308;
+        }
+        /* Glassmorphism effects */
+        .glass {
+            background: rgba(18, 18, 23, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-yellow {
+            box-shadow: 0 0 25px -5px rgba(234, 179, 8, 0.3);
+        }
+        .glow-yellow-hover:hover {
+            box-shadow: 0 0 30px 2px rgba(234, 179, 8, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-[#0a0a0c] text-gray-100 flex flex-col min-h-screen selection:bg-brand-500 selection:text-black">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="fixed top-0 left-0 w-full z-40 glass border-b border-brand-border transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="bg-brand-500 text-black p-2.5 rounded-xl font-black text-xl tracking-wider transform group-hover:rotate-6 transition-transform">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+                <span class="text-2xl font-black tracking-extrabold text-white">APEX<span class="text-brand-500">FIT</span></span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-300">
+                <a href="#home" class="hover:text-brand-500 transition-colors">Home</a>
+                <a href="#sobre" class="hover:text-brand-500 transition-colors">Sobre</a>
+                <a href="#modalidades" class="hover:text-brand-500 transition-colors">Modalidades</a>
+                <a href="#planos" class="hover:text-brand-500 transition-colors">Planos</a>
+                <a href="#ferramentas" class="hover:text-brand-500 transition-colors">Calculadoras</a>
+                <a href="#depoimentos" class="hover:text-brand-500 transition-colors">Depoimentos</a>
+            </nav>
+
+            <!-- User Auth Buttons / Profile -->
+            <div class="hidden md:flex items-center gap-4" id="auth-buttons-desktop">
+                <button onclick="openModal('login-modal')" class="text-sm font-bold text-gray-300 hover:text-white px-4 py-2 transition-colors">
+                    <i class="fa-solid fa-right-to-bracket mr-2"></i>Entrar
+                </button>
+                <button onclick="openModal('register-modal')" class="bg-brand-500 hover:bg-brand-400 text-black font-extrabold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg glow-yellow-hover">
+                    Cadastrar
+                </button>
+            </div>
+
+            <!-- Logged User Info (Hidden by default) -->
+            <div id="user-menu-desktop" class="hidden flex items-center gap-4">
+                <a href="#area-aluno" class="flex items-center gap-3 bg-brand-card px-4 py-2 rounded-xl border border-brand-border hover:border-brand-500 transition-colors">
+                    <div class="w-8 h-8 rounded-full bg-brand-500 text-black flex items-center justify-center font-bold text-sm" id="user-avatar-text">
+                        U
+                    </div>
+                    <span class="text-sm font-bold text-white" id="user-display-name">Olá, Aluno</span>
+                </a>
+                <button onclick="logout()" class="text-gray-400 hover:text-red-400 p-2 transition-colors" title="Sair">
+                    <i class="fa-solid fa-power-off text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white text-2xl focus:outline-none">
+                <i class="fa-solid fa-bars" id="menu-icon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden glass border-b border-brand-border px-4 pt-2 pb-6 flex flex-col gap-4">
+            <a href="#home" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-brand-500 py-2 border-b border-gray-800">Home</a>
+            <a href="#sobre" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-brand-500 py-2 border-b border-gray-800">Sobre</a>
+            <a href="#modalidades" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-brand-500 py-2 border-b border-gray-800">Modalidades</a>
+            <a href="#planos" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-brand-500 py-2 border-b border-gray-800">Planos</a>
+            <a href="#ferramentas" onclick="toggleMobileMenu()" class="text-gray-300 hover:text-brand-500 py-2 border-b border-gray-800">Calculadoras</a>
+            
+            <div id="auth-buttons-mobile" class="flex flex-col gap-2 pt-2">
+                <button onclick="toggleMobileMenu(); openModal('login-modal')" class="w-full py-2.5 text-center font-bold border border-brand-border rounded-xl">Entrar</button>
+                <button onclick="toggleMobileMenu(); openModal('register-modal')" class="w-full py-2.5 text-center font-extrabold bg-brand-500 text-black rounded-xl">Cadastrar</button>
+            </div>
+            <div id="user-menu-mobile" class="hidden flex flex-col gap-2 pt-2">
+                <a href="#area-aluno" onclick="toggleMobileMenu()" class="w-full py-2.5 text-center font-bold bg-brand-card border border-brand-500 rounded-xl">Minha Área do Aluno</a>
+                <button onclick="logout(); toggleMobileMenu()" class="w-full py-2 text-center text-red-400 font-bold">Sair da Conta</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow pt-20">
+
+        <!-- 1. HERO SECTION -->
+        <section id="home" class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-20">
+            <!-- Background Image with Gradient Overlay -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1920&auto=format&fit=crop" alt="Gym Background" class="w-full h-full object-cover object-center opacity-30">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/70 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a0c] via-transparent to-[#0a0a0c]"></div>
+            </div>
+
+            <div class="relative z-10 max-w-5xl mx-auto text-center px-4 sm:px-6">
+                <span class="inline-block py-1 px-4 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-500 text-xs font-bold uppercase tracking-widest mb-6 animate-pulse">
+                    <i class="fa-solid fa-bolt mr-2"></i>A melhor estrutura da cidade
+                </span>
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white mb-6 leading-none">
+                    SUPERES SEUS <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">LIMITES</span> HOJE
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Aparelhagem de última geração, treinadores certificados e ambiente focado em resultados de alto nível. Transforme seu corpo e sua mente.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#planos" class="w-full sm:w-auto px-8 py-4 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-all shadow-xl glow-yellow text-center text-lg">
+                        Conheça os Planos
+                    </a>
+                    <button onclick="openModal('experimental-modal')" class="w-full sm:w-auto px-8 py-4 bg-brand-card hover:bg-zinc-800 text-white font-bold rounded-xl border border-brand-border transition-all text-center text-lg">
+                        <i class="fa-solid fa-calendar-check text-brand-500 mr-2"></i>Aula Experimental Grátis
+                    </button>
+                </div>
+
+                <!-- Stats Badges -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 pt-12 border-t border-brand-border/50 max-w-4xl mx-auto">
+                    <div>
+                        <p class="text-3xl font-black text-brand-500">2.500m²</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mt-1">Área Total</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-black text-brand-500">+50</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mt-1">Equipamentos High-Tech</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-black text-brand-500">100%</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mt-1">Climatizado</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-black text-brand-500">24/7</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mt-1">Acesso Livre (Plano Black)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. SOBRE A ACADEMIA -->
+        <section id="sobre" class="py-20 bg-brand-card border-y border-brand-border relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-4 w-24 h-24 bg-brand-500/20 rounded-2xl blur-xl"></div>
+                        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=1000&auto=format&fit=crop" alt="Ambiente da Academia" class="rounded-2xl shadow-2xl border border-brand-border relative z-10 w-full object-cover h-[450px]">
+                        <div class="absolute -bottom-6 -right-6 glass p-6 rounded-2xl z-20 hidden sm:flex items-center gap-4 border border-brand-500/30">
+                            <div class="bg-brand-500 text-black p-4 rounded-xl text-2xl font-black">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div>
+                                <p class="text-lg font-black text-white">Academia #1</p>
+                                <p class="text-xs text-gray-400">Eleita a melhor da região por 3 anos</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-brand-500 text-sm font-bold tracking-widest uppercase mb-2 block">Nossa História & Propósito</span>
+                        <h2 class="text-3xl sm:text-4xl font-black text-white mb-6 uppercase">Construído para quem busca <span class="text-brand-500">Resultados Reais</span></h2>
+                        <p class="text-gray-300 leading-relaxed mb-6">
+                            Na Apex Fitness, não vendemos apenas matrículas; entregamos transformações. Nossa missão é oferecer um ecossistema completo focado em saúde, performance e bem-estar, combinado com tecnologias avançadas de treino.
+                        </p>
+                        
+                        <div class="space-y-4 mb-8">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-circle-check text-brand-500 text-lg mt-1"></i>
+                                <p class="text-gray-300 text-sm"><strong class="text-white">Acompanhamento Individualizado:</strong> Fichas digitais personalizadas atualizadas constantemente conforme sua evolução.</p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-circle-check text-brand-500 text-lg mt-1"></i>
+                                <p class="text-gray-300 text-sm"><strong class="text-white">Profissionais Certificados:</strong> Equipe altamente qualificada para garantir sua segurança e eficiência nos exercícios.</p>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-circle-check text-brand-500 text-lg mt-1"></i>
+                                <p class="text-gray-300 text-sm"><strong class="text-white">Comunidade Motivadora:</strong> Ambiente energia positiva para você superar metas todos os dias.</p>
+                            </div>
+                        </div>
+
+                        <a href="#modalidades" class="inline-flex items-center gap-2 text-brand-500 font-bold hover:text-brand-400 transition-colors">
+                            Conheça nossas modalidades <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. MODALIDADES -->
+        <section id="modalidades" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 text-sm font-bold tracking-widest uppercase mb-2 block">Diversidade de Treinos</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white uppercase">Nossas <span class="text-brand-500">Modalidades</span></h2>
+                <p class="text-gray-400 mt-4">Escolha a atividade que mais combina com seu objetivo e estilo de vida.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop" alt="Musculação" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                        <span class="absolute top-4 right-4 bg-brand-500 text-black text-xs font-black px-3 py-1 rounded-full uppercase">Popular</span>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-dumbbell"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">Musculação de Alta Performance</h3>
+                        <p class="text-gray-400 text-sm mb-4">Aparelhos biomencânicos modernos para hipertrofia, emagrecimento e ganho de força com máxima segurança.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1517931524326-bdd55a541177?q=80&w=600&auto=format&fit=crop" alt="CrossFit" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-fire"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">Cross Training / WOD</h3>
+                        <p class="text-gray-400 text-sm mb-4">Treinos funcionais intensos que desafiam seu condicionamento cardiovascular, agilidade e resistência.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=600&auto=format&fit=crop" alt="Pilates" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-child-reaching"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">Pilates & Postura</h3>
+                        <p class="text-gray-400 text-sm mb-4">Foco em flexibilidade, fortalecimento do core, correção postural e alívio de dores corporais.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?q=80&w=600&auto=format&fit=crop" alt="Lutas" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-hand-fist"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">Artes Marciais (Muay Thai / Jiu-Jitsu)</h3>
+                        <p class="text-gray-400 text-sm mb-4">Aulas com mestres credenciados para queima calórica intensa, autodefesa e disciplina mental.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?q=80&w=600&auto=format&fit=crop" alt="Dança" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-music"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">FitDance & Ritmos</h3>
+                        <p class="text-gray-400 text-sm mb-4">Gaste calorias se divertindo em turmas animadas com os hits musicais do momento.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden group hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=600&auto=format&fit=crop" alt="Personal Trainer" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-transparent"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-brand-500 text-2xl mb-2"><i class="fa-solid fa-user-ninja"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-2">Personal Trainer VIP</h3>
+                        <p class="text-gray-400 text-sm mb-4">Atendimento 100% exclusivo individual com foco aceleração máxima de metas pessoais.</p>
+                        <button onclick="openModal('experimental-modal')" class="text-sm font-bold text-brand-500 group-hover:text-white transition-colors flex items-center gap-2">
+                            Agendar Treino <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. PLANOS E PREÇOS -->
+        <section id="planos" class="py-24 bg-brand-card border-y border-brand-border relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-brand-500 text-sm font-bold tracking-widest uppercase mb-2 block">Investimento no seu futuro</span>
+                    <h2 class="text-3xl sm:text-5xl font-black text-white uppercase">Escolha o <span class="text-brand-500">Plano Ideal</span></h2>
+                    <p class="text-gray-400 mt-4">Sem taxa de cancelamento abusiva ou letras miúdas. Transparência total.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+                    <!-- PLANO BRONZE -->
+                    <div class="bg-[#0a0a0c] rounded-3xl border border-brand-border p-8 flex flex-col justify-between hover:border-gray-500 transition-all">
+                        <div>
+                            <span class="text-gray-400 text-xs font-bold uppercase tracking-widest">Iniciante</span>
+                            <h3 class="text-2xl font-black text-white mt-1">Plano Bronze</h3>
+                            <p class="text-gray-400 text-xs mt-2">Acesso básico à musculação.</p>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-black text-white">R$ 99</span>
+                                <span class="text-gray-400 text-sm">/mês</span>
+                            </div>
+
+                            <ul class="space-y-4 text-sm text-gray-300 my-6">
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Acesso à Musculação (Horário Comercial)
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Ficha de treino digital padrão
+                                </li>
+                                <li class="flex items-center gap-3 text-gray-600">
+                                    <i class="fa-solid fa-xmark"></i> Aulas coletivas de Dança/Lutas
+                                </li>
+                                <li class="flex items-center gap-3 text-gray-600">
+                                    <i class="fa-solid fa-xmark"></i> Direito a acompanhante
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Plano Bronze', 99)" class="w-full py-4 rounded-xl border border-brand-border hover:border-brand-500 font-bold text-white transition-colors">
+                            Assinar Agora
+                        </button>
+                    </div>
+
+                    <!-- PLANO BLACK (DESTAQUE) -->
+                    <div class="bg-[#0a0a0c] rounded-3xl border-2 border-brand-500 p-8 flex flex-col justify-between relative shadow-2xl glow-yellow scale-105 z-10">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-500 text-black font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
+                            Mais Vendido & Recomendado
+                        </div>
+                        <div>
+                            <span class="text-brand-500 text-xs font-bold uppercase tracking-widest">Completo</span>
+                            <h3 class="text-2xl font-black text-white mt-1">Plano Gold/Black</h3>
+                            <p class="text-gray-400 text-xs mt-2">Acesso ilimitado e VIP a tudo.</p>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-black text-white">R$ 149</span>
+                                <span class="text-gray-400 text-sm">/mês</span>
+                            </div>
+
+                            <ul class="space-y-4 text-sm text-gray-300 my-6">
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Acesso Livre 24/7 em todas unidades
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Todas as Modalidades & Aulas Coletivas
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Trazer 5 Amigos/mês como convidado
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Cadeira de Massagem & Spa inclusos
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Avaliação Física Bioimpedância Trimestral
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Plano Gold/Black', 149)" class="w-full py-4 rounded-xl bg-brand-500 hover:bg-brand-400 text-black font-black transition-colors shadow-lg">
+                            Assinar Agora
+                        </button>
+                    </div>
+
+                    <!-- PLANO ANUAL -->
+                    <div class="bg-[#0a0a0c] rounded-3xl border border-brand-border p-8 flex flex-col justify-between hover:border-gray-500 transition-all">
+                        <div>
+                            <span class="text-gray-400 text-xs font-bold uppercase tracking-widest">Maior Economia</span>
+                            <h3 class="text-2xl font-black text-white mt-1">Plano Anual VIP</h3>
+                            <p class="text-gray-400 text-xs mt-2">Economize 30% pagando anualmente.</p>
+
+                            <div class="my-6">
+                                <span class="text-4xl font-black text-white">R$ 119</span>
+                                <span class="text-gray-400 text-sm">/mês (fidelidade)</span>
+                            </div>
+
+                            <ul class="space-y-4 text-sm text-gray-300 my-6">
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Todos os benefícios do Plano Black
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Camiseta Oficial Apex Fit Grátis
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Zero Taxa de Matrícula
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <i class="fa-solid fa-check text-brand-500"></i> Congelamento de plano até 30 dias
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="startCheckout('Plano Anual VIP', 119)" class="w-full py-4 rounded-xl border border-brand-border hover:border-brand-500 font-bold text-white transition-colors">
+                            Assinar Agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. AREA DO ALUNO (DASHBOARD SIMULADO) -->
+        <section id="area-aluno" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-brand-card rounded-3xl border border-brand-border p-6 sm:p-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-brand-border">
+                    <div>
+                        <span class="bg-brand-500/10 text-brand-500 text-xs font-bold px-3 py-1 rounded-full border border-brand-500/20">Portal do Membro</span>
+                        <h2 class="text-3xl font-black text-white mt-2" id="dash-welcome">Área do Aluno</h2>
+                        <p class="text-gray-400 text-sm mt-1">Gerencie seu plano, treinos e agendamentos.</p>
+                    </div>
+                    
+                    <!-- Status do Plano no Dashboard -->
+                    <div class="bg-[#0a0a0c] p-4 rounded-2xl border border-brand-border flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400 uppercase font-bold">Status da Assinatura</p>
+                            <p class="text-sm font-black text-white" id="dash-plan-status">Visitante (Nenhum plano ativo)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Se não logado -> Aviso -->
+                <div id="dash-lock-warning" class="py-12 text-center">
+                    <i class="fa-solid fa-lock text-5xl text-gray-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-white mb-2">Faça Login para acessar seu painel</h3>
+                    <p class="text-gray-400 text-sm max-w-md mx-auto mb-6">Acesse sua ficha de treino interativa, registre presenças e veja seu histórico de mensalidades.</p>
+                    <button onclick="openModal('login-modal')" class="px-6 py-3 bg-brand-500 text-black font-extrabold rounded-xl hover:bg-brand-400 transition-colors">
+                        Fazer Login Agora
+                    </button>
+                </div>
+
+                <!-- Se logado -> Exibe Dados -->
+                <div id="dash-content" class="hidden pt-8 space-y-8">
+                    <!-- Grid de Resumo -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div class="bg-[#0a0a0c] p-6 rounded-2xl border border-brand-border">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Frequência Mensal</p>
+                            <p class="text-3xl font-black text-white mt-2">14 <span class="text-xs text-brand-500 font-normal">dias treinados</span></p>
+                            <div class="w-full bg-zinc-800 rounded-full h-2 mt-4">
+                                <div class="bg-brand-500 h-2 rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-[#0a0a0c] p-6 rounded-2xl border border-brand-border">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Treino do Dia</p>
+                            <p class="text-2xl font-black text-white mt-2">Treino A - Peito & Tríceps</p>
+                            <p class="text-xs text-green-400 mt-2"><i class="fa-solid fa-check-circle mr-1"></i>Atualizado pelo Personal</p>
+                        </div>
+                        <div class="bg-[#0a0a0c] p-6 rounded-2xl border border-brand-border">
+                            <p class="text-gray-400 text-xs font-bold uppercase">Próxima Avaliação</p>
+                            <p class="text-2xl font-black text-white mt-2">15/11/2026</p>
+                            <p class="text-xs text-gray-400 mt-2">Bioimpedância agendada</p>
+                        </div>
+                    </div>
+
+                    <!-- Ficha de Treino Interativa -->
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-500"></i> Ficha de Treino do Aluno
+                        </h3>
+                        <div class="bg-[#0a0a0c] rounded-2xl border border-brand-border overflow-hidden">
+                            <div class="p-4 bg-zinc-900 font-bold text-sm text-gray-300 grid grid-cols-12 gap-2">
+                                <span class="col-span-1 text-center">Status</span>
+                                <span class="col-span-5">Exercício</span>
+                                <span class="col-span-3 text-center">Séries x Reps</span>
+                                <span class="col-span-3 text-center">Carga (kg)</span>
+                            </div>
+                            <div class="divide-y divide-brand-border text-sm">
+                                <div class="p-4 grid grid-cols-12 gap-2 items-center hover:bg-zinc-900/50">
+                                    <div class="col-span-1 text-center">
+                                        <input type="checkbox" onchange="toggleExercise(this)" class="w-5 h-5 accent-brand-500 cursor-pointer">
+                                    </div>
+                                    <span class="col-span-5 font-bold text-white">Supino Reto com Barra</span>
+                                    <span class="col-span-3 text-center text-gray-400">4 x 10 a 12</span>
+                                    <span class="col-span-3 text-center text-brand-500 font-bold">30 kg / lado</span>
+                                </div>
+                                <div class="p-4 grid grid-cols-12 gap-2 items-center hover:bg-zinc-900/50">
+                                    <div class="col-span-1 text-center">
+                                        <input type="checkbox" onchange="toggleExercise(this)" class="w-5 h-5 accent-brand-500 cursor-pointer">
+                                    </div>
+                                    <span class="col-span-5 font-bold text-white">Supino Inclinado com Halteres</span>
+                                    <span class="col-span-3 text-center text-gray-400">3 x 12</span>
+                                    <span class="col-span-3 text-center text-brand-500 font-bold">22 kg / haltere</span>
+                                </div>
+                                <div class="p-4 grid grid-cols-12 gap-2 items-center hover:bg-zinc-900/50">
+                                    <div class="col-span-1 text-center">
+                                        <input type="checkbox" onchange="toggleExercise(this)" class="w-5 h-5 accent-brand-500 cursor-pointer">
+                                    </div>
+                                    <span class="col-span-5 font-bold text-white">Crossover no Crossover</span>
+                                    <span class="col-span-3 text-center text-gray-400">3 x 15</span>
+                                    <span class="col-span-3 text-center text-brand-500 font-bold">15 kg</span>
+                                </div>
+                                <div class="p-4 grid grid-cols-12 gap-2 items-center hover:bg-zinc-900/50">
+                                    <div class="col-span-1 text-center">
+                                        <input type="checkbox" onchange="toggleExercise(this)" class="w-5 h-5 accent-brand-500 cursor-pointer">
+                                    </div>
+                                    <span class="col-span-5 font-bold text-white">Tríceps Testa na Barra W</span>
+                                    <span class="col-span-3 text-center text-gray-400">4 x 10</span>
+                                    <span class="col-span-3 text-center text-brand-500 font-bold">12 kg / lado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. CALCULADORAS INTERATIVAS (IMC E CALORIAS) -->
+        <section id="ferramentas" class="py-24 bg-brand-card border-y border-brand-border">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-brand-500 text-sm font-bold tracking-widest uppercase mb-2 block">Ferramentas Fitness</span>
+                    <h2 class="text-3xl sm:text-5xl font-black text-white uppercase">Calcule Seus <span class="text-brand-500">Índices</span></h2>
+                    <p class="text-gray-400 mt-4">Acompanhe métricas essenciais para otimizar sua dieta e seus treinos.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Calculadora de IMC -->
+                    <div class="bg-[#0a0a0c] p-8 rounded-3xl border border-brand-border">
+                        <h3 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
+                            <i class="fa-solid fa-calculator text-brand-500"></i> Calculadora de IMC
+                        </h3>
+                        <form id="imc-form" onsubmit="calculateIMC(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Peso (kg)</label>
+                                <input type="number" step="0.1" id="imc-peso" placeholder="Ex: 75.5" required class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Altura (cm)</label>
+                                <input type="number" id="imc-altura" placeholder="Ex: 175" required class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                            </div>
+                            <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors">
+                                Calcular IMC
+                            </button>
+                        </form>
+                        <div id="imc-result" class="hidden mt-6 p-4 rounded-xl bg-brand-card border border-brand-border">
+                            <p class="text-sm text-gray-400">Seu IMC estimado é: <strong id="imc-value" class="text-2xl text-brand-500 block font-black">--</strong></p>
+                            <p class="text-xs font-bold text-gray-300 mt-2" id="imc-status">Classificação: --</p>
+                        </div>
+                    </div>
+
+                    <!-- Calculadora de Calorias/TDEE -->
+                    <div class="bg-[#0a0a0c] p-8 rounded-3xl border border-brand-border">
+                        <h3 class="text-2xl font-black text-white mb-6 flex items-center gap-3">
+                            <i class="fa-solid fa-fire-flame-curved text-brand-500"></i> Gasto Calórico Diário (TDEE)
+                        </h3>
+                        <form id="tdee-form" onsubmit="calculateTDEE(event)" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Idade</label>
+                                    <input type="number" id="tdee-idade" placeholder="Ex: 25" required class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Gênero</label>
+                                    <select id="tdee-genero" class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                                        <option value="m">Masculino</option>
+                                        <option value="f">Feminino</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Peso (kg)</label>
+                                    <input type="number" id="tdee-peso" placeholder="Ex: 80" required class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Altura (cm)</label>
+                                    <input type="number" id="tdee-altura" placeholder="Ex: 180" required class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nível de Atividade</label>
+                                <select id="tdee-atividade" class="w-full bg-brand-card border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                                    <option value="1.2">Sedentário (pouco ou nenhum exercício)</option>
+                                    <option value="1.375">Levemente Ativo (1-3 dias/semana)</option>
+                                    <option value="1.55">Moderadamente Ativo (3-5 dias/semana)</option>
+                                    <option value="1.725">Muito Ativo (6-7 dias/semana)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors">
+                                Calcular Gasto Calórico
+                            </button>
+                        </form>
+                        <div id="tdee-result" class="hidden mt-6 p-4 rounded-xl bg-brand-card border border-brand-border">
+                            <p class="text-sm text-gray-400">Estimativa de gasto energético diário:</p>
+                            <span id="tdee-value" class="text-2xl text-brand-500 font-black">-- kcal / dia</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. DEPOIMENTOS DE ALUNOS -->
+        <section id="depoimentos" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 text-sm font-bold tracking-widest uppercase mb-2 block">Histórias Inspiradoras</span>
+                <h2 class="text-3xl sm:text-5xl font-black text-white uppercase">O que dizem nossos <span class="text-brand-500">Alunos</span></h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Depoimento 1 -->
+                <div class="bg-brand-card p-8 rounded-3xl border border-brand-border flex flex-col justify-between">
+                    <div>
+                        <div class="text-brand-500 text-sm mb-4 flex gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-300 text-sm italic mb-6">"Estrutura impecável! Os professores realmente se importam com a sua execução nos aparelhos para evitar lesões. Perdi 12kg em 5 meses de Plano Black."</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" alt="Aluno" class="w-12 h-12 rounded-full object-cover border border-brand-500">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Mariana Silva</h4>
+                            <p class="text-xs text-gray-400">Aluna há 1 ano</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 2 -->
+                <div class="bg-brand-card p-8 rounded-3xl border border-brand-border flex flex-col justify-between">
+                    <div>
+                        <div class="text-brand-500 text-sm mb-4 flex gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-300 text-sm italic mb-6">"O ambiente é incrível e super motivador. Os treinos de Muay Thai são insanos e a facilidade do app para ver a ficha ajuda demais no dia a dia!"</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop" alt="Aluno" class="w-12 h-12 rounded-full object-cover border border-brand-500">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Lucas Oliveira</h4>
+                            <p class="text-xs text-gray-400">Aluno há 8 meses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Depoimento 3 -->
+                <div class="bg-brand-card p-8 rounded-3xl border border-brand-border flex flex-col justify-between">
+                    <div>
+                        <div class="text-brand-500 text-sm mb-4 flex gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-300 text-sm italic mb-6">"Melhor academia de todas que já frequentei. Aparelhos novos e nunca fica superlotado por causa do excelente espaço físico. Recomendo de olhos fechados."</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop" alt="Aluno" class="w-12 h-12 rounded-full object-cover border border-brand-500">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Camila Costa</h4>
+                            <p class="text-xs text-gray-400">Aluna há 2 anos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-card border-t border-brand-border pt-16 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <!-- Coluna 1: Info Marca -->
+                <div>
+                    <a href="#" class="flex items-center gap-2 mb-4">
+                        <div class="bg-brand-500 text-black p-2 rounded-lg font-black text-lg">
+                            <i class="fa-solid fa-dumbbell"></i>
+                        </div>
+                        <span class="text-xl font-black text-white">APEX<span class="text-brand-500">FIT</span></span>
+                    </a>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        Transformando vidas através do movimento, disciplina e tecnologia fitness.
+                    </p>
+                    <div class="flex items-center gap-3 text-brand-500">
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#0a0a0c] border border-brand-border flex items-center justify-center hover:border-brand-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#0a0a0c] border border-brand-border flex items-center justify-center hover:border-brand-500 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-[#0a0a0c] border border-brand-border flex items-center justify-center hover:border-brand-500 transition-colors"><i class="fa-brands fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <!-- Coluna 2: Horários -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Horários de Funcionamento</h4>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><strong class="text-gray-200">Segunda a Sexta:</strong> 05:00 - 23:00</li>
+                        <li><strong class="text-gray-200">Sábados:</strong> 08:00 - 18:00</li>
+                        <li><strong class="text-gray-200">Domingos e Feriados:</strong> 09:00 - 14:00</li>
+                        <li class="text-brand-500 font-bold mt-2"><i class="fa-solid fa-clock mr-1"></i> Área VIP Black: 24 Horas</li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 3: Links Rápidos -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Links Úteis</h4>
+                    <ul class="text-sm text-gray-400 space-y-2">
+                        <li><a href="#modalidades" class="hover:text-brand-500 transition-colors">Modalidades e Aulas</a></li>
+                        <li><a href="#planos" class="hover:text-brand-500 transition-colors">Planos de Assinatura</a></li>
+                        <li><a href="#ferramentas" class="hover:text-brand-500 transition-colors">Calculadoras Fitness</a></li>
+                        <li><a href="#area-aluno" class="hover:text-brand-500 transition-colors">Portal do Aluno</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 4: Contato & Localização -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Onde Estamos</h4>
+                    <p class="text-sm text-gray-400 mb-2"><i class="fa-solid fa-location-dot text-brand-500 mr-2"></i>Av. Paulista, 1000 - Bela Vista, São Paulo - SP</p>
+                    <p class="text-sm text-gray-400 mb-2"><i class="fa-solid fa-phone text-brand-500 mr-2"></i>(11) 99999-8888</p>
+                    <p class="text-sm text-gray-400"><i class="fa-solid fa-envelope text-brand-500 mr-2"></i>contato@apexfit.com.br</p>
+                </div>
+            </div>
+
+            <div class="border-t border-brand-border pt-8 text-center text-xs text-gray-500">
+                <p>&copy; 2026 APEX FITNESS ACADEMIA S.A. Todos os direitos reservados. Projeto demonstrativo.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAIS DO SISTEMA -->
+
+    <!-- MODAL DE LOGIN -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-brand-card w-full max-w-md p-8 rounded-3xl border border-brand-border relative shadow-2xl">
+            <button onclick="closeModal('login-modal')" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-black text-white mb-2">Acesse sua Conta</h3>
+            <p class="text-sm text-gray-400 mb-6">Entre para visualizar sua ficha de treinos.</p>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">E-mail ou CPF</label>
+                    <input type="email" id="login-email" required placeholder="seuemail@exemplo.com" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Senha</label>
+                    <input type="password" id="login-senha" required placeholder="••••••••" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors">
+                    Entrar
+                </button>
+            </form>
+            <p class="text-xs text-center text-gray-400 mt-6">Ainda não é aluno? <button onclick="closeModal('login-modal'); openModal('register-modal')" class="text-brand-500 font-bold underline">Cadastre-se aqui</button></p>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO -->
+    <div id="register-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-brand-card w-full max-w-lg p-8 rounded-3xl border border-brand-border relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('register-modal')" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-black text-white mb-2">Cadastro de Aluno</h3>
+            <p class="text-sm text-gray-400 mb-6">Crie sua conta para começar a treinar na Apex.</p>
+
+            <form onsubmit="handleRegister(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nome Completo</label>
+                    <input type="text" id="reg-nome" required placeholder="Ex: Carlos Silva" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">E-mail</label>
+                        <input type="email" id="reg-email" required placeholder="carlos@email.com" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Telefone / WhatsApp</label>
+                        <input type="text" id="reg-tel" required placeholder="(11) 99999-9999" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">CPF</label>
+                        <input type="text" id="reg-cpf" required placeholder="000.000.000-00" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Senha</label>
+                        <input type="password" id="reg-senha" required placeholder="••••••••" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors mt-2">
+                    Criar Minha Conta
+                </button>
+            </form>
+            <p class="text-xs text-center text-gray-400 mt-6">Já tem uma conta? <button onclick="closeModal('register-modal'); openModal('login-modal')" class="text-brand-500 font-bold underline">Faça Login</button></p>
+        </div>
+    </div>
+
+    <!-- MODAL DE CHECKOUT / PAGAMENTO -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-brand-card w-full max-w-2xl p-6 sm:p-8 rounded-3xl border border-brand-border relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('checkout-modal')" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <span class="text-brand-500 text-xs font-bold uppercase tracking-wider">Finalizar Assinatura</span>
+            <h3 class="text-2xl font-black text-white mb-1" id="checkout-plan-title">Plano Selecionado</h3>
+            <p class="text-lg font-bold text-brand-500 mb-6" id="checkout-plan-price">R$ 0,00 / mês</p>
+
+            <!-- Abas de Pagamento -->
+            <div class="flex border-b border-brand-border mb-6">
+                <button onclick="switchPaymentMethod('pix')" id="tab-pix" class="flex-1 py-3 font-bold text-sm text-center text-brand-500 border-b-2 border-brand-500">
+                    <i class="fa-brands fa-pix mr-2"></i>PIX
+                </button>
+                <button onclick="switchPaymentMethod('card')" id="tab-card" class="flex-1 py-3 font-bold text-sm text-center text-gray-400 border-b-2 border-transparent">
+                    <i class="fa-solid fa-credit-card mr-2"></i>Cartão
+                </button>
+                <button onclick="switchPaymentMethod('boleto')" id="tab-boleto" class="flex-1 py-3 font-bold text-sm text-center text-gray-400 border-b-2 border-transparent">
+                    <i class="fa-solid fa-barcode mr-2"></i>Boleto
+                </button>
+            </div>
+
+            <!-- OPÇÃO 1: PIX -->
+            <div id="pay-pix" class="text-center py-4 space-y-4">
+                <p class="text-sm text-gray-300">Escaneie o QR Code abaixo pelo aplicativo do seu banco para pagamento instantâneo:</p>
+                <div class="bg-white p-4 inline-block rounded-2xl shadow-lg border border-gray-200">
+                    <!-- SVG Simulado de QR Code -->
+                    <svg class="w-48 h-48 mx-auto" viewBox="0 0 100 100">
+                        <path d="M0,0 h100 v100 h-100 z" fill="white"/>
+                        <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" fill="black"/>
+                        <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" fill="black"/>
+                        <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" fill="black"/>
+                        <path d="M45,10 h10 v10 h-10 z M45,30 h10 v20 h-10 z M60,50 h30 v10 h-30 z M50,60 h20 v30 h-20 z M75,75 h15 v15 h-15 z" fill="black"/>
+                    </svg>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Código Copia e Cola</label>
+                    <div class="flex gap-2 max-w-md mx-auto">
+                        <input type="text" readonly value="00020126360014BR.GOV.BCB.PIX0114apexfit@pix.com.br5204000053039865802BR5915APEX FITNESS LTDA6009SAO PAULO62070503***6304E2B1" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-2.5 text-xs text-gray-400 font-mono">
+                        <button onclick="copyPixCode()" class="px-4 bg-brand-500 text-black font-bold rounded-xl text-xs hover:bg-brand-400 transition-colors">Copiar</button>
+                    </div>
+                </div>
+                <button onclick="confirmPayment()" class="w-full py-3.5 bg-green-500 hover:bg-green-400 text-black font-extrabold rounded-xl transition-colors mt-4">
+                    Já efetuei o pagamento PIX
+                </button>
+            </div>
+
+            <!-- OPÇÃO 2: CARTÃO DE CRÉDITO -->
+            <div id="pay-card" class="hidden space-y-4">
+                <!-- Visualização Interativa do Cartão -->
+                <div class="bg-gradient-to-tr from-zinc-900 via-zinc-800 to-brand-card border border-brand-500/30 p-6 rounded-2xl text-white shadow-xl mb-4">
+                    <div class="flex justify-between items-center mb-8">
+                        <i class="fa-solid fa-microchip text-brand-500 text-3xl"></i>
+                        <i class="fa-brands fa-cc-mastercard text-3xl text-gray-400"></i>
+                    </div>
+                    <p class="font-mono text-lg tracking-widest mb-4" id="card-preview-number">•••• •••• •••• ••••</p>
+                    <div class="flex justify-between text-xs font-mono uppercase">
+                        <div>
+                            <span class="text-gray-500 block">Titular</span>
+                            <span id="card-preview-name">NOME COMPLETO</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 block">Validade</span>
+                            <span id="card-preview-expiry">MM/AA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="confirmPayment(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Número do Cartão</label>
+                        <input type="text" required placeholder="0000 0000 0000 0000" maxlength="19" oninput="updateCardPreview()" id="card-num" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Nome Impresso no Cartão</label>
+                        <input type="text" required placeholder="Como no cartão" oninput="updateCardPreview()" id="card-name" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Validade</label>
+                            <input type="text" required placeholder="MM/AA" maxlength="5" oninput="updateCardPreview()" id="card-expiry" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">CVV</label>
+                            <input type="text" required placeholder="123" maxlength="4" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors mt-2">
+                        Pagar e Ativar Assinatura
+                    </button>
+                </form>
+            </div>
+
+            <!-- OPÇÃO 3: BOLETO BANCÁRIO -->
+            <div id="pay-boleto" class="hidden text-center py-4 space-y-4">
+                <p class="text-sm text-gray-300">O boleto tem vencimento em até 3 dias úteis. Após a compensação, seu acesso será liberado automaticamente.</p>
+                
+                <div class="bg-white p-6 rounded-2xl border border-gray-300 text-black font-mono">
+                    <p class="text-xs font-bold text-gray-500 mb-2">CÓDIGO DE BARRAS DO BOLETO</p>
+                    <p class="text-xs sm:text-sm font-bold tracking-tighter break-all">34191.09008 61713.917307 71012.345003 8 98760000014900</p>
+                    <div class="mt-4 flex justify-center gap-1 h-12">
+                        <!-- Simulação visual de código de barras -->
+                        <div class="w-1 bg-black h-full"></div><div class="w-2 bg-black h-full"></div><div class="w-1 bg-white h-full"></div><div class="w-3 bg-black h-full"></div><div class="w-1 bg-black h-full"></div><div class="w-2 bg-black h-full"></div><div class="w-1 bg-white h-full"></div><div class="w-2 bg-black h-full"></div><div class="w-1 bg-black h-full"></div><div class="w-3 bg-black h-full"></div><div class="w-2 bg-black h-full"></div>
+                    </div>
+                </div>
+
+                <button onclick="confirmPayment()" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors">
+                    Gerar e Baixar PDF do Boleto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AULA EXPERIMENTAL -->
+    <div id="experimental-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-brand-card w-full max-w-md p-8 rounded-3xl border border-brand-border relative shadow-2xl">
+            <button onclick="closeModal('experimental-modal')" class="absolute top-6 right-6 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-black text-white mb-2">Treino Experimental Grátis</h3>
+            <p class="text-sm text-gray-400 mb-6">Agende seu primeiro dia sem compromisso.</p>
+
+            <form onsubmit="handleExperimental(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Seu Nome</label>
+                    <input type="text" required placeholder="Nome completo" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">WhatsApp</label>
+                    <input type="text" required placeholder="(11) 99999-9999" class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Modalidade Desejada</label>
+                    <select class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                        <option>Musculação</option>
+                        <option>Cross Training</option>
+                        <option>Muay Thai / Lutas</option>
+                        <option>Pilates</option>
+                        <option>FitDance</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Data do Treino</label>
+                    <input type="date" required class="w-full bg-[#0a0a0c] border border-brand-border rounded-xl p-3 text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <button type="submit" class="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-black font-extrabold rounded-xl transition-colors">
+                    Confirmar Agendamento
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // ESTADO GLOBAL DA APLICAÇÃO SIMULADO
+        let currentUser = null;
+        let selectedPlan = null;
+
+        // INICIALIZAÇÃO
+        window.onload = function() {
+            // Verificar se usuário já estava "logado" no localStorage
+            const savedUser = localStorage.getItem('apex_user');
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUIState();
+            }
+        };
+
+        // NOTIFICAÇÕES TOAST CUSTOMIZADAS
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-zinc-900 border-brand-500' : 'bg-zinc-900 border-red-500';
+            const icon = type === 'success' ? 'fa-circle-check text-brand-500' : 'fa-circle-exclamation text-red-500';
+
+            toast.className = `glass ${bgColor} border p-4 rounded-xl shadow-2xl flex items-center gap-3 text-sm text-white pointer-events-auto transform transition-all duration-300 translate-x-10 opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} text-lg"></i>
+                <span class="font-semibold">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // CONTROLE DOS MODAIS
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // AUTENTICAÇÃO SIMULADA
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const name = email.split('@')[0];
+            
+            currentUser = {
+                name: name.charAt(0).toUpperCase() + name.slice(1),
+                email: email,
+                plan: 'Inativo'
+            };
+
+            localStorage.setItem('apex_user', JSON.stringify(currentUser));
+            updateUIState();
+            closeModal('login-modal');
+            showToast(`Bem-vindo de volta, ${currentUser.name}!`);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const nome = document.getElementById('reg-nome').value;
+            const email = document.getElementById('reg-email').value;
+
+            currentUser = {
+                name: nome,
+                email: email,
+                plan: 'Inativo'
+            };
+
+            localStorage.setItem('apex_user', JSON.stringify(currentUser));
+            updateUIState();
+            closeModal('register-modal');
+            showToast(`Conta criada com sucesso! Bem-vindo à Apex Fitness, ${currentUser.name}.`);
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('apex_user');
+            updateUIState();
+            showToast('Você saiu da sua conta.');
+        }
+
+        function updateUIState() {
+            const authBtnsDesktop = document.getElementById('auth-buttons-desktop');
+            const userMenuDesktop = document.getElementById('user-menu-desktop');
+            const authBtnsMobile = document.getElementById('auth-buttons-mobile');
+            const userMenuMobile = document.getElementById('user-menu-mobile');
+            const userDisplayName = document.getElementById('user-display-name');
+            const userAvatarText = document.getElementById('user-avatar-text');
+            
+            const dashWelcome = document.getElementById('dash-welcome');
+            const dashLockWarning = document.getElementById('dash-lock-warning');
+            const dashContent = document.getElementById('dash-content');
+            const dashPlanStatus = document.getElementById('dash-plan-status');
+
+            if(currentUser) {
+                // Logado
+                authBtnsDesktop.classList.add('hidden');
+                userMenuDesktop.classList.remove('hidden');
+                authBtnsMobile.classList.add('hidden');
+                userMenuMobile.classList.remove('hidden');
+
+                userDisplayName.textContent = `Olá, ${currentUser.name}`;
+                userAvatarText.textContent = currentUser.name.charAt(0).toUpperCase();
+
+                dashWelcome.textContent = `Painel do Aluno - ${currentUser.name}`;
+                dashLockWarning.classList.add('hidden');
+                dashContent.classList.remove('hidden');
+                dashPlanStatus.textContent = currentUser.plan || 'Nenhum plano ativo';
+            } else {
+                // Deslogado
+                authBtnsDesktop.classList.remove('hidden');
+                userMenuDesktop.classList.add('hidden');
+                authBtnsMobile.classList.remove('hidden');
+                userMenuMobile.classList.add('hidden');
+
+                dashWelcome.textContent = `Área do Aluno`;
+                dashLockWarning.classList.remove('hidden');
+                dashContent.classList.add('hidden');
+            }
+        }
+
+        // FLUXO DE PAGAMENTO / CHECKOUT
+        function startCheckout(planName, price) {
+            selectedPlan = { name: planName, price: price };
+            document.getElementById('checkout-plan-title').textContent = planName;
+            document.getElementById('checkout-plan-price').textContent = `R$ ${price},00 / mês`;
+            openModal('checkout-modal');
+        }
+
+        function switchPaymentMethod(method) {
+            const pixDiv = document.getElementById('pay-pix');
+            const cardDiv = document.getElementById('pay-card');
+            const boletoDiv = document.getElementById('pay-boleto');
+
+            const tabPix = document.getElementById('tab-pix');
+            const tabCard = document.getElementById('tab-card');
+            const tabBoleto = document.getElementById('tab-boleto');
+
+            pixDiv.classList.add('hidden');
+            cardDiv.classList.add('hidden');
+            boletoDiv.classList.add('hidden');
+
+            tabPix.className = 'flex-1 py-3 font-bold text-sm text-center text-gray-400 border-b-2 border-transparent';
+            tabCard.className = 'flex-1 py-3 font-bold text-sm text-center text-gray-400 border-b-2 border-transparent';
+            tabBoleto.className = 'flex-1 py-3 font-bold text-sm text-center text-gray-400 border-b-2 border-transparent';
+
+            if(method === 'pix') {
+                pixDiv.classList.remove('hidden');
+                tabPix.className = 'flex-1 py-3 font-bold text-sm text-center text-brand-500 border-b-2 border-brand-500';
+            } else if(method === 'card') {
+                cardDiv.classList.remove('hidden');
+                tabCard.className = 'flex-1 py-3 font-bold text-sm text-center text-brand-500 border-b-2 border-brand-500';
+            } else if(method === 'boleto') {
+                boletoDiv.classList.remove('hidden');
+                tabBoleto.className = 'flex-1 py-3 font-bold text-sm text-center text-brand-500 border-b-2 border-brand-500';
+            }
+        }
+
+        function copyPixCode() {
+            showToast('Código PIX copiado para a área de transferência!');
+        }
+
+        function updateCardPreview() {
+            const num = document.getElementById('card-num').value;
+            const name = document.getElementById('card-name').value;
+            const expiry = document.getElementById('card-expiry').value;
+
+            document.getElementById('card-preview-number').textContent = num || '•••• •••• •••• ••••';
+            document.getElementById('card-preview-name').textContent = name ? name.toUpperCase() : 'NOME COMPLETO';
+            document.getElementById('card-preview-expiry').textContent = expiry || 'MM/AA';
+        }
+
+        function confirmPayment(e) {
+            if(e) e.preventDefault();
+
+            if(!currentUser) {
+                currentUser = {
+                    name: 'Aluno Apex',
+                    email: 'aluno@apexfit.com',
+                    plan: selectedPlan ? selectedPlan.name : 'Plano Black'
+                };
+            } else {
+                currentUser.plan = selectedPlan ? selectedPlan.name : 'Plano Black';
+            }
+
+            localStorage.setItem('apex_user', JSON.stringify(currentUser));
+            updateUIState();
+            closeModal('checkout-modal');
+            showToast('Pagamento confirmado! Sua assinatura está ativa.');
+        }
+
+        // AGENDAMENTO EXPERIMENTAL
+        function handleExperimental(e) {
+            e.preventDefault();
+            closeModal('experimental-modal');
+            showToast('Aula experimental agendada! Enviamos a confirmação no seu WhatsApp.');
+        }
+
+        // FERRAMENTAS: IMC & CALORIAS
+        function calculateIMC(e) {
+            e.preventDefault();
+            const peso = parseFloat(document.getElementById('imc-peso').value);
+            const alturaCm = parseFloat(document.getElementById('imc-altura').value);
+            const alturaM = alturaCm / 100;
+
+            if(peso > 0 && alturaM > 0) {
+                const imc = (peso / (alturaM * alturaM)).toFixed(1);
+                document.getElementById('imc-value').textContent = imc;
+
+                let status = '';
+                if(imc < 18.5) status = 'Abaixo do peso';
+                else if(imc < 24.9) status = 'Peso normal (Saudável)';
+                else if(imc < 29.9) status = 'Sobrepeso';
+                else status = 'Obesidade';
+
+                document.getElementById('imc-status').textContent = `Classificação: ${status}`;
+                document.getElementById('imc-result').classList.remove('hidden');
+            }
+        }
+
+        function calculateTDEE(e) {
+            e.preventDefault();
+            const idade = parseInt(document.getElementById('tdee-idade').value);
+            const genero = document.getElementById('tdee-genero').value;
+            const peso = parseFloat(document.getElementById('tdee-peso').value);
+            const altura = parseFloat(document.getElementById('tdee-altura').value);
+            const fatorAtividade = parseFloat(document.getElementById('tdee-atividade').value);
+
+            // Fórmula de Mifflen-St Jeor
+            let bmr = (10 * peso) + (6.25 * altura) - (5 * idade);
+            bmr = genero === 'm' ? bmr + 5 : bmr - 161;
+
+            const tdee = Math.round(bmr * fatorAtividade);
+
+            document.getElementById('tdee-value').textContent = `${tdee} kcal / dia`;
+            document.getElementById('tdee-result').classList.remove('hidden');
+        }
+
+        // FICHA INTERATIVA
+        function toggleExercise(checkbox) {
+            const row = checkbox.closest('.grid');
+            if(checkbox.checked) {
+                row.classList.add('opacity-40', 'line-through');
+                showToast('Exercício marcado como concluído!');
+            } else {
+                row.classList.remove('opacity-40', 'line-through');
+            }
+        }
+    </script>
+</body>
+</html>
